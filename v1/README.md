@@ -16,7 +16,7 @@ Examples: [tests/test_test.py](tests/test_test.py)
 
 Run command in cli:
 ```sh
-    pip install -r requirements.txt
-    python main.py
+    pip3 install docker
+    python3 main.py
 ```
 
