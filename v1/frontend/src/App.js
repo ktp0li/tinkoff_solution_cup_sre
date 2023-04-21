@@ -12,13 +12,11 @@ const App = () => {
     const [logs, setLogs] = useState([]);
 
     let testIndex = 0;
-  
-    const updateUploadedTestFiles = files => setTestFiles([...testFiles, ...files]);
-  
+
     const handleSubmit = event => {
         event.preventDefault();
         let socket = new WebSocket('ws://' + hostname + '/logs');
-        console.log(socket);
+
         socket.onmessage = event => {
             const log = (''+event.data)
                 .replace(/&/g, '&amp;')
@@ -28,6 +26,7 @@ const App = () => {
                 .replace(/'/g, '&#039;');
             setLogs([...logs, log]);
         };
+
         socket.onopen = () => {
             socket.send(JSON.stringify({
                 username: username,
@@ -56,13 +55,19 @@ const App = () => {
                 onChange={event => setWebsiteURL(event.target.value)}
             />
             <Dropzone
-                onDrop={files => updateUploadedTestFiles(files)}
+                onDrop={files => {
+                    for (let file of files) {
+                        const fr = new FileReader();
+                        fr.onload = event => setTestFiles([...testFiles, {meta: file, content: event.target.result}]);
+                        fr.readAsText(file);
+                    }
+                }}
             >
                 <p>Drag 'n' drop some files here, or click to select files</p>
             </Dropzone>
             <List>
                 {testFiles.map(file => (
-                    <ListItem key={file.path}>{file.name}</ListItem>
+                    <ListItem key={file.meta.path}>{file.meta.name}</ListItem>
                 ))}
             </List>
             <Button
