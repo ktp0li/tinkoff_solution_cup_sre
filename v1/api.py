@@ -16,13 +16,20 @@ async def create_upload_files(files: list[UploadFile]):
 @app.websocket("/logs")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    print((puk := await websocket.receive())["text"])
     client = docker.from_env()
     container = client.containers.run("puk",
-                                      volumes=[f'{os.getcwd()}/tests:/tmp'],
+                                      volumes=[f'{os.getcwd()}/tests:/home'],
                                       detach=True, environment=[f"URL={url}"])
-    while not ("short test summary info" in
-               (logs := container.logs().decode("utf-8"))):
-        time.sleep(1)
+    for _ in range(60):
+        if ("short test summary info" in
+            (logs := container.logs().decode("utf-8"))) or \
+             ("no tests run" in logs):
+            break
+        await websocket.send_text(f"container status: {container.status}")
+        time.sleep(2)
+    else:
+        print("timeout")
     await websocket.send_text(logs)
     await websocket.close()
 
