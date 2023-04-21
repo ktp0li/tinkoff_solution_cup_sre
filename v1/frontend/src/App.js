@@ -5,17 +5,22 @@ import Dropzone from './components/Dropzone';
 
 
 const App = () => {
+    const hostname = 'localhost:5000';
     const [websiteURL, setWebsiteURL] = useState('');
     const [testFiles, setTestFiles] = useState([]);
+    const [logs, setLogs] = useState([]);
   
     const updateUploadedTestFiles = files => setTestFiles([...testFiles, ...files]);
   
     const handleSubmit = event => {
-      event.preventDefault();
-      // ...
+        event.preventDefault();
+        let socket = new WebSocket('ws://' + hostname + 'logs');
+        console.log(socket);
+        socket.onmessage(event => setLogs([...logs, ''+event.data]));
+        socket.send('/_\\');
     };
-  
-    return (
+
+    return (<>
         <FormControl
             action='#'
             method='POST'
@@ -29,7 +34,6 @@ const App = () => {
                 maxWidth: '800px',
                 margin: '1rem auto',
             }}
-            onSubmit={handleSubmit}
         >
             <FormLabel> URL тестируемой страницы </FormLabel>
             <TextField
@@ -59,11 +63,17 @@ const App = () => {
             </Button>
             <Button
                 type='submit' size='medium' variant='contained' color='primary'
+                onClick={handleSubmit}
             >
                 Запустить
             </Button>
         </FormControl>
-    );
+        <List>
+            {logs.map(log => (
+                <ListItem>{log}</ListItem>
+            ))}
+        </List>
+    </>);
 }
 
 export default App;
