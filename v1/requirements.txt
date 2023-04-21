@@ -1,0 +1,5 @@
+docker
+fastapi
+uvicorn
+python-multipart
+websockets
