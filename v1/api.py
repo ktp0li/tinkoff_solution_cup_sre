@@ -4,6 +4,7 @@ import docker
 import os
 import time
 app = FastAPI()
+url = "https://google.com"
 
 
 @app.post("/uploadfiles/")
@@ -17,10 +18,10 @@ async def websocket_endpoint(websocket: WebSocket):
     client = docker.from_env()
     container = client.containers.run("puk",
                                       volumes=[f'{os.getcwd()}/tests:/tmp'],
-                                      detach=True)
+                                      detach=True, environment=[f"URL={url}"])
     while not ("short test summary info" in
                (logs := container.logs().decode("utf-8"))):
-        time.sleep(2)
+        time.sleep(1)
     await websocket.send_text(logs)
     await websocket.close()
 
