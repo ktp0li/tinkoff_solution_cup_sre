@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {FormLabel, TextField, Button, FormControl, List, ListItem} from '@mui/material';
 
 import Dropzone from './components/Dropzone';
@@ -9,15 +9,19 @@ const App = () => {
     const [websiteURL, setWebsiteURL] = useState('');
     const [testFiles, setTestFiles] = useState([]);
     const [logs, setLogs] = useState([]);
+
+    let testIndex = 0;
   
     const updateUploadedTestFiles = files => setTestFiles([...testFiles, ...files]);
   
     const handleSubmit = event => {
         event.preventDefault();
-        let socket = new WebSocket('ws://' + hostname + 'logs');
+        let socket = new WebSocket('ws://' + hostname + '/logs');
         console.log(socket);
-        socket.onmessage(event => setLogs([...logs, ''+event.data]));
-        socket.send('/_\\');
+        socket.onmessage = event => setLogs([...logs, ''+event.data]);
+        socket.onopen = () => {
+            socket.send('/_\\');
+        }
     };
 
     return (<>
@@ -25,15 +29,6 @@ const App = () => {
             action='#'
             method='POST'
             encType='multipart/form-data'
-            style={{
-                position: 'fixed',
-                left: 0,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                maxWidth: '800px',
-                margin: '1rem auto',
-            }}
         >
             <FormLabel> URL тестируемой страницы </FormLabel>
             <TextField
@@ -68,11 +63,13 @@ const App = () => {
                 Запустить
             </Button>
         </FormControl>
-        <List>
-            {logs.map(log => (
-                <ListItem>{log}</ListItem>
-            ))}
-        </List>
+        <div>
+            <List>
+                {logs.map(log => (
+                    <ListItem key={testIndex++}>{log}</ListItem>
+                ))}
+            </List>
+        </div>
     </>);
 }
 
