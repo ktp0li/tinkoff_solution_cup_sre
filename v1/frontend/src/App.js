@@ -6,6 +6,7 @@ import Dropzone from './components/Dropzone';
 
 const App = () => {
     const hostname = 'localhost:5000';
+    const [username, setUsername] = useState('');
     const [websiteURL, setWebsiteURL] = useState('');
     const [testFiles, setTestFiles] = useState([]);
     const [logs, setLogs] = useState([]);
@@ -18,9 +19,21 @@ const App = () => {
         event.preventDefault();
         let socket = new WebSocket('ws://' + hostname + '/logs');
         console.log(socket);
-        socket.onmessage = event => setLogs([...logs, ''+event.data]);
+        socket.onmessage = event => {
+            const log = (''+event.data)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+            setLogs([...logs, log]);
+        };
         socket.onopen = () => {
-            socket.send('/_\\');
+            socket.send(JSON.stringify({
+                username: username,
+                url: websiteURL,
+                tests: testFiles
+            }))
         }
     };
 
@@ -30,6 +43,12 @@ const App = () => {
             method='POST'
             encType='multipart/form-data'
         >
+            <FormLabel> Пользователь </FormLabel>
+            <TextField
+                placeholder='username' type='text' size='medium' variant='outlined'
+                value={username}
+                onChange={event => setUsername(event.target.value)}
+            />
             <FormLabel> URL тестируемой страницы </FormLabel>
             <TextField
                 placeholder='http://example.com' type='url' size='medium' variant='outlined'
