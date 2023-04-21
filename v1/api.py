@@ -4,8 +4,8 @@ import uvicorn
 import docker
 import os
 import time
+import json
 app = FastAPI()
-url = "https://google.com"
 
 
 @app.post("/uploadfiles/")
@@ -16,11 +16,16 @@ async def create_upload_files(files: list[UploadFile]):
 @app.websocket("/logs")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    print((puk := await websocket.receive())["text"])
+    output = json.loads((await websocket.receive())["text"])
     client = docker.from_env()
+    url = output["url"] if output["url"] != "" else "https://google.com"
+    dir = os.getcwd() + "/" + output["username"] + "-" + str(time.time())
+    os.makedirs(dir)
+
     container = client.containers.run("puk",
                                       volumes=[f'{os.getcwd()}/tests:/home'],
-                                      detach=True, environment=[f"URL={url}"])
+                                      detach=True,
+                                      environment=["URL=" + url])
     for _ in range(60):
         if ("short test summary info" in
             (logs := container.logs().decode("utf-8"))) or \
@@ -29,8 +34,17 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_text(f"container status: {container.status}")
         time.sleep(2)
     else:
-        print("timeout")
+        print("container status: timeout")
     await websocket.send_text(logs)
+
+    f = open(dir + '/video.tar', 'wb')
+    bits, stat = container.get_archive('/test-results/')
+    print(stat)
+    for chunk in bits:
+        f.write(chunk)
+    f.close()
+
+    container.remove(force=True)
     await websocket.close()
 
 if __name__ == "__main__":
