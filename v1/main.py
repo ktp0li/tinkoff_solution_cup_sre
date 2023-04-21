@@ -3,14 +3,24 @@ import os
 import time
 client = docker.from_env()
 url = "https://google.com"
-container = client.containers.run("puk", volumes=[f'{os.getcwd()}/tests:/tmp'],
+container = client.containers.run("puk", volumes=[f'{os.getcwd()}/tests:/home'],
                                   detach=True, environment=[f"URL={url}"])
-while not ("short test summary info" in
-           (logs := container.logs().decode("utf-8"))):
+for _ in range(999):
+    if ("short test summary info" in
+       (logs := container.logs().decode("utf-8"))):
+        break
     print(container.status)
-    logs = container.logs()
     time.sleep(2)
+else:
+    print("timeout")
 
-print(container.status)
 print(logs)
+
+f = open('./video.tar', 'wb')
+bits, stat = container.get_archive('/test-results/')
+print(stat)
+for chunk in bits:
+    f.write(chunk)
+f.close()
+
 container.remove(force=True)
