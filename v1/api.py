@@ -1,16 +1,18 @@
-from fastapi import FastAPI, File, UploadFile, WebSocket
+from fastapi import FastAPI, WebSocket
 from fastapi.responses import FileResponse
 import uvicorn
 import docker
 import os
 import time
 import json
+import glob
 app = FastAPI()
 
 
-@app.post("/uploadfiles/")
-async def create_upload_files(files: list[UploadFile]):
-    return {"filenames": [file.filename for file in files]}
+@app.post("/getvideo/{username}")
+async def create_upload_files(username):
+    path = glob.glob(f'{username}-*')[-1]
+    return FileResponse(path=os.getcwd() + '/' + path + '/video.tar')
 
 
 @app.websocket("/logs")
