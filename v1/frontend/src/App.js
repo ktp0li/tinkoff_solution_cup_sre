@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {FormLabel, TextField, Button, FormControl, List, ListItem, Tabs, Tab, Box, TabPanel} from '@mui/material';
+import {Tabs, Tab, Box} from '@mui/material';
 
 import UploadPanel from './panels/upload';
 import ResultPanel from './panels/result';
@@ -15,15 +15,17 @@ const App = () => {
         <Box style={{
             display: 'flex',
             flexDirection: 'column',
-            background: '#EEEEFF',
+            background: '#fcc521',
+            borderRadius: '5px',
         }}>
             <Tabs
                 variant='fullWidth'
+                textColor='inherit'
+                indicatorColor='secondary'
                 value={activeTab}
                 onChange={(event, value) => setActiveTab(value)}
-                aria-label="wrapped label tabs example"
             >
-                <Tab value='upload' label="Загрузить файлы" />
+                <Tab value='upload' label='Загрузить файлы' />
                 <Tab value='result' label='Получить результат' />
                 <Tab value='signup' label='Регистрация' />
             </Tabs>
