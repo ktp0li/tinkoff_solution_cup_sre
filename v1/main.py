@@ -2,14 +2,16 @@ import docker
 import os
 import time
 client = docker.from_env()
-url = "https://google.com"
-container = client.containers.run("puk", volumes=[f'{os.getcwd()}/tests:/home'],
+url = "https://playwright.dev"
+print(os.getcwd())
+container = client.containers.run("puk", volumes=[f'{os.getcwd()}/prop:/home'],
                                   detach=True, environment=[f"URL={url}"])
 for _ in range(999):
     if ("short test summary info" in
         (logs := container.logs().decode("utf-8"))) or \
          ("no tests run" in logs):
         break
+    print(logs)
     print(container.status)
     time.sleep(2)
 else:
