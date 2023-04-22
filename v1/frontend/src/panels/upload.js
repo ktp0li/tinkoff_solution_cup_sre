@@ -55,7 +55,7 @@ const UploadPanel = ({hostname}) => {
                 />
                 <FormLabel> URL тестируемой страницы </FormLabel>
                 <TextField
-                    placeholder='http://example.com' type='url' size='medium' variant='outlined'
+                    placeholder='https://www.tinkoff.ru/' type='url' size='medium' variant='outlined'
                     value={websiteURL}
                     onChange={event => setWebsiteURL(event.target.value)}
                 />
