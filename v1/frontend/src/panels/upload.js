@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Box, Button, FormControl, FormLabel, List, ListItem, TextField } from '@mui/material';
+import { Box, Button, FormControl, FormLabel, List, ListItem, Paper, Table, TableBody, TableCell, TableContainer, TableRow, TextField } from '@mui/material';
 
 import Dropzone from '../components/Dropzone';
+import { useTheme } from 'styled-components';
+import StyledTableRow from '../components/tablerow.styled';
 
 
 const UploadPanel = ({hostname}) => {
@@ -67,13 +69,24 @@ const UploadPanel = ({hostname}) => {
                             fr.readAsText(file);
                         }
                     }}
-                >
-                    <p>Drag 'n' drop some files here, or click to select files</p>
-                </Dropzone>
+                />
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableBody>
+                            {testFiles.map(file => (
+                                <StyledTableRow key={file.meta.path}>
+                                    <TableCell style={{
+                                        fontFamily: 'sans-serif',
+                                        fontSize: '14px',
+                                    }}>
+                                        {file.meta.name}
+                                    </TableCell>
+                                </StyledTableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
                 <List>
-                    {testFiles.map(file => (
-                        <ListItem key={file.meta.path}>{file.meta.name}</ListItem>
-                    ))}
                 </List>
                 <Button
                     type='reset' size='small' variant='outlined' color='error'
@@ -93,11 +106,25 @@ const UploadPanel = ({hostname}) => {
                 </Button>
             </FormControl>
             <Box>
-                <List>
-                    {logs.map(log => (
-                        <ListItem key={testIndex++}>{log}</ListItem>
-                    ))}
-                </List>
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableBody>
+                            {logs.map(log => (
+                                <StyledTableRow key={testIndex++}>
+                                    <TableCell
+                                        size='small'
+                                        style={{
+                                            fontFamily: 'monospace',
+                                            fontSize: '12px',
+                                        }}
+                                    >
+                                        {log}
+                                    </TableCell>
+                                </StyledTableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             </Box>
         </Box>
     );

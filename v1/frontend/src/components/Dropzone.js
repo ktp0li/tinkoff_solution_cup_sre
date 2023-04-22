@@ -3,6 +3,7 @@ import Dropzone from 'react-dropzone';
 import { DragDropText, FileUploaderContainer } from './FileUploader.styled';
 
 const MyDropzone = ({onDrop}) => {
+
     return (
         <Dropzone onDrop={onDrop}>
             {({getRootProps, getInputProps, isDragActive}) => (
