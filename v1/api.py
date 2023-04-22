@@ -21,20 +21,25 @@ async def websocket_endpoint(websocket: WebSocket):
     url = output["url"] if output["url"] != "" else "https://google.com"
     dir = os.getcwd() + "/" + output["username"] + "-" + str(time.time())
     os.makedirs(dir)
+    print(output)
+    for test in output["tests"]:
+        f = open(dir + '/test_' + test['meta']['path'], 'wb')
+        f.write(bytes(test['content'], 'utf-8'))
+        f.close()
 
     container = client.containers.run("puk",
-                                      volumes=[f'{os.getcwd()}/tests:/home'],
+                                      volumes=[f'{dir}:/home'],
                                       detach=True,
                                       environment=["URL=" + url])
     for _ in range(60):
         if ("short test summary info" in
             (logs := container.logs().decode("utf-8"))) or \
-             ("no tests run" in logs):
+                    ("no tests ran" in logs) or ("passed in" in logs):
             break
         await websocket.send_text(f"container status: {container.status}")
         time.sleep(2)
     else:
-        print("container status: timeout")
+        await websocket.send_text("container status: timeout")
     await websocket.send_text(logs)
 
     f = open(dir + '/video.tar', 'wb')
