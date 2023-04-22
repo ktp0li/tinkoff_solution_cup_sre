@@ -4,7 +4,12 @@ import uvicorn
 import docker
 import os
 import time
+
+from endpoint.users.page import router as users
+
 app = FastAPI()
+app.include_router(users)
+
 url = "https://google.com"
 
 
@@ -32,6 +37,7 @@ async def websocket_endpoint(websocket: WebSocket):
         print("timeout")
     await websocket.send_text(logs)
     await websocket.close()
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=5000, log_level="info")
